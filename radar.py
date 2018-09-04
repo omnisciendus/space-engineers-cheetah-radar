@@ -1,3 +1,7 @@
+# Updated 09/04/2018
+# omnisciendus@gmail.com
+# Cheetah's Radar Mod
+
 import math
 
 ptimport = False
@@ -193,7 +197,9 @@ def main():
     print('Radar Detection Range')
     print('Max Range to Target / Max Hostile Detection Range')
     print('Active Radars: ' + str(det.blocks['radar-active']))
-    print('Large Reactors Running: ' + str(round(det.blocks['large-reactor'],4)))
+
+    print('Large Reactors Running: '
+          + str(round(det.blocks['large-reactor'],4)))
     if ptimport:
         print(pt)
     else:
