@@ -7,70 +7,6 @@ try:
 except ImportError:
     pass
 
-# Radar pseudocode:
-# Keywords:
-# within: "the distance between DET and TAR is less than"
-
-# Abbreviations:
-# DET: detector craft
-# TAR: target craft
-# AR: active radar
-# PGW: PlanetGravityWell
-# M: Mass
-# G: Earth Standard Gravity, 9.81 m/s^2
-
-# Constants:
-# MVR:   MaxVisibilityRange = 200000
-# GDR:   GuaranteedDetectionRange = 1000
-# DSC:   DecoyStealthCoefficient = 1.05
-
-# Variables:
-# MR:    MarkerRange; maximum operating beacon/antenna range
-# TRP:   TotalRadarPower; sum([ERP for radar if radar is AC])
-# ERP:   EffectiveRadarPower
-# ADR:   ActiveDetectionRate = VDBDR/DSC^DC
-# VDBDR: VisibilityDistanceByDefaultRule = WVR*300
-# DC:    DecoysCount; number of active decoys
-# RO:    ReactorOutput; sum of all reactor power output in MW
-# WV:    WorldVolume; volume of a sphere that circumscribes an entity
-# WVR:   WorldVolumeRadius; radius of the RV
-# GD:    GravityDistortion = MD + AGD
-# MD:    MassDistortion = (3.75229E-6)*M^(3/2)
-# AGD:   ArtificialGravityDistortion = (500/G)*sum([abs(GA) for grav gens])
-# GA:    GravityAcceleration; acceleration of a gravity generator in m/s^2
-
-# want all entities that are "nearby" and are grids
-# entity list = [TAR for TAR in entities if (within DET MVR)
-#                                            and (TAR is a grid)]
-# For TAR in entity list:
-#     If (within GDR)
-#         or (TAR in line of sight
-#           and ( (TAR is broadcasting and within (TAR MR))
-#                or ( DET AR is on and within (DET TRP)*(TAR ADR)/40000 )
-#                or ( TAR has physics and within (TAR TRP)/1.5 )
-#                or ( TAR has physics and within (TAR RO)*200 )
-#                or ( TAR has physics
-#                     and TAR is not static
-#                     and not in PGW
-#                     and not [[TAR WV within close asteroid WVR*3]]
-#                     and within (TAR GD) )
-#                )
-#          ):
-#     Make a MyDetectedEntityInfo object
-#     Try to add the info object to the DetectedEntity list
-#     Determine if adding a marker is necessary. It is NOT necessary if:
-#         The Info object could not be added to the DetectedEntity list
-#         DET radar isn't functional
-#         DET radar not set to display markers
-#         DET radar does not have owner in relay
-#         TAR has a RadarableGrid component, TAR is not a working grid,
-#             and DET is set to show working grids only
-#         TAR has a RadarableGrid component, TAR has functional beacons/antennae,
-#               and DET is within the MarkerRange of those beacons/antennae
-#         TAR is friendly and DET radar is set to display only hostiles
-#         TAR is floating and DET radar not set to display floating grids
-#         There is not already a marker in the DET radar's list
-#     Create marker if necessary
 
 TERMINAL_TABWIDTH = 8 # number of spaces equal to a full tab
 
@@ -160,7 +96,7 @@ class Ship(Grid):
         return s
     def DetectorShip():
         s = Ship()
-        s.blocks['radar-active'] = 10
+        s.blocks['radar-active'] = 1
         s.blocks['large-reactor'] = 2
         s.M = 2000E3 # kg
         s.boundingradius = 2.5*18 # m
@@ -208,11 +144,12 @@ def main():
     names = ['Tugboat', 'Mining Ship', 'Stealth Ship', 'Detector Ship',
              'Battleship', 'Mothership', 'Ore Facility',
              'Shipyard', 'Mining Outpost']
-    firstrow = ['Target', 'Turret', 'Active', 'Passive', 'Heat', 'Gravity']
+    firstrow = ['Target', 'Turret', 'Active', 'Passive', 'Heat', 'Gravity',
+                'Net Range', 'Mass (T)', 'Length (m)', 'Blocks']
     if ptimport:
         pt = PrettyTable(firstrow)
     else:
-        for i in range(1,6):
+        for i in range(1,7):
             firstrow[i] = ((13 - len(firstrow[i]))//2)*' ' + firstrow[i]
         pt = [firstrow, None]
 
@@ -220,13 +157,15 @@ def main():
     for i, tar in enumerate(targets):
         detectresult = Grid.detect(det, tar)
         (gdrrange, arrange, prrange, heatrange, gravrange) = detectresult
-
+        detectresult = detectresult + (max(detectresult),)
+        
         reverseresult = Grid.detect(tar, det)
         (gdrrev, arrev, prrev, heatrev, gravrev) = reverseresult
+        reverseresult = reverseresult + (max(reverseresult),)
 
 
         row = []
-        for j in range(5):
+        for j in range(len(detectresult)):
             range_ = str(int(round(detectresult[j],-2))/1000)
             range_ = (5-len(range_))*' ' + range_
             hostilerange = str(int(round(reverseresult[j],-2))/1000)
@@ -234,15 +173,26 @@ def main():
 
             row.append(range_ + ' / ' + hostilerange)
 
-        row = [names[i] ] + row
+        row = [names[i]] + row
+
+        row += [str(int(tar.M/1000)), str(int(tar.boundingradius*2))]
+
+        
+        tar_blocks = [str(v) + ' ' + k.replace('-',' ')
+                      for k,v in tar.blocks.items() if v > 0]
+
+        tar_blocks = ', '.join(tar_blocks)
+
+        row += [tar_blocks]
         
         if ptimport:
             pt.add_row(row)
         else:
             pt.append(row)
-    print('Radar Detection Range (km)')
+    print('Radar Detection Range')
+    print('Max Range to Target / Max Hostile Detection Range')
     print('Active Radars: ' + str(det.blocks['radar-active']))
-    print('Reactors Running: ' + str(det.blocks['large-reactor']))
+    print('Large Reactors Running: ' + str(det.blocks['large-reactor']))
     if ptimport:
         print(pt)
     else:
