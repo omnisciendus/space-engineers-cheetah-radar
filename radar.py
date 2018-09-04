@@ -199,7 +199,6 @@ class Station(Grid):
         return s
 
 def main():
-    ptimport = False
     n_tab = TERMINAL_TABWIDTH
     det = Ship.DetectorShip()
     targets = [Ship.Tugboat(), Ship.MiningShip(), Ship.StealthShip(),
@@ -230,9 +229,10 @@ def main():
         for j in range(5):
             range_ = str(int(round(detectresult[j],-2))/1000)
             range_ = (5-len(range_))*' ' + range_
-            hostile_range = str(int(round(reverseresult[j],-2))/1000)
+            hostilerange = str(int(round(reverseresult[j],-2))/1000)
+            hostilerange = hostilerange + (5-len(hostilerange))*' '
 
-            row.append(range_ + ' / ' + hostile_range)
+            row.append(range_ + ' / ' + hostilerange)
 
         row = [names[i] ] + row
         
