@@ -1,3 +1,6 @@
+Sept. 04, 2018
+omnisciendus@gmail.com
+
 Cheetah's Radar Mod takes a lot of factors into consideration to determine if a radar detects a target. Read the mod description to get a basic idea of the terminology. I'm not a c# developer, so it is possible I have made some mistakes reading the source code. However, here are some useful things I discovered:
 
 tl;dr:
@@ -73,8 +76,11 @@ The existence of the mod raises the skill ceiling in ship design. In addition to
 
 Future Work:
  - Someone who is more familiar with C# and SE modding should figure out what <Grid.hasphysics> and <Grid.isstatic> mean. I've largely ignored hasphysics, assuming all relevant grids will have physics, and I suspect stations are static.
+ - Figure out how this interfaces with antennas since I ignored that completely
  - Detection range is a minimization problem. For a given ship capability, there must exist a minimum detection range. The problem is likely simple enough to respond well to machine optimization. If I were solving this problem, I would assign each resource a value and compute much the value of a ship must increase to decrease its detection range.
-
+ - This would likely work well as an in-game mod, but I don't know C# and don't have access to a windoge computer anyway atm.
+ - Verification: Since I don't have access to SE, I have no way of testing that the predictions are correct. 
+ 
 Appendix:
 Radar pseudocode:
 
@@ -109,7 +115,7 @@ MD:    MassDistortion = (3.75229E-6)*M^(3/2)
 AGD:   ArtificialGravityDistortion = (500/G)*sum([abs(GA) for grav gens])
 GA:    GravityAcceleration; acceleration of a gravity generator in m/s^2
 
-want all entities that are "nearby" and are grids
+# want all entities that are "nearby" and are grids
 entity list = [TAR for TAR in entities if (within DET MVR)
                                            and (TAR is a grid)]
 For TAR in entity list:
