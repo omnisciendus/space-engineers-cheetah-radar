@@ -1,5 +1,8 @@
 Sept. 04, 2018
 omnisciendus@gmail.com
+Cheetah's Radar Mod:
+https://steamcommunity.com/sharedfiles/filedetails/?id=907384096
+
 
 Cheetah's Radar Mod takes a lot of factors into consideration to determine if a
 radar detects a target. Read the mod description to get a basic idea of the

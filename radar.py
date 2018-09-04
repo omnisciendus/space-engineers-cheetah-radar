@@ -1,6 +1,8 @@
 # Updated 09/04/2018
 # omnisciendus@gmail.com
-# Cheetah's Radar Mod
+# Cheetah's Radar Mod:
+# https://steamcommunity.com/sharedfiles/filedetails/?id=907384096
+
 
 import math
 
@@ -11,9 +13,36 @@ try:
 except ImportError:
     pass
 
-
 TERMINAL_TABWIDTH = 8 # number of spaces equal to a full tab
 DETECTOR_RADARS = 1 # number of active radars on a detector ship
+
+# Abbreviations:
+# DET: detector craft
+# TAR: target craft
+# AR: active radar
+# PGW: PlanetGravityWell
+# M: Mass
+# G: Earth Standard Gravity, 9.81 m/s^2
+
+# Constants:
+# MVR:   MaxVisibilityRange = 200000
+# GDR:   GuaranteedDetectionRange = 1000
+# DSC:   DecoyStealthCoefficient = 1.05
+
+# Variables:
+# MR:    MarkerRange; maximum operating beacon/antenna range
+# TRP:   TotalRadarPower; sum([ERP for radar if radar is AC])
+# ERP:   EffectiveRadarPower
+# ADR:   ActiveDetectionRate = VDBDR/DSC^DC
+# VDBDR: VisibilityDistanceByDefaultRule = WVR*300
+# DC:    DecoysCount; number of active decoys
+# RO:    ReactorOutput; sum of all reactor power output in MW
+# WV:    WorldVolume; volume of a sphere that circumscribes an entity
+# WVR:   WorldVolumeRadius; radius of the RV
+# GD:    GravityDistortion = MD + AGD
+# MD:    MassDistortion = (3.75229E-6)*M^(3/2)
+# AGD:   ArtificialGravityDistortion = (500/G)*sum([abs(GA) for grav gens])
+# GA:    GravityAcceleration; acceleration of a gravity generator in m/s^2
 
 # G = 9.81 # Standard Gravity (m/s^2)
 PR = 120000 # PlanetRadius (m)
@@ -43,7 +72,7 @@ class Grid:
         # for each grav generator:
         #     artificial gravity += abs(gravity generated in G's)
         self.artificialgravity = artificialgravity # (G's)
-        
+
     def TRP(self):
         return self.blocks['radar-active']*MP
     def ADR(self):
