@@ -15,10 +15,10 @@ However, careful design and use of radars can vastly improve the odds of staying
 hidden and/or finding enemies. Use radar.py to see how this works. You specify
 the hardware on a DetectorShip, and an array of target ships. The calculator
 figures out how close you have to get to them to see them, and how close they
-have to get to you. Caveats are that it does not account line of sight or
-asteroid gravity masking, and that depending on a couple of details in the
-source code I don't understand, it may be much easier to hide stations than I am
-predicting.
+have to get to you. Caveat 1 is that it does not account flor line of sight or
+asteroid gravity masking. Caveat 2 is that depending on a couple of details in
+the source code I don't understand, it may be much easier to hide stations than
+I am predicting.
 
 Range Limit:
  - Under no circumstances will a radar detect something more than 200 km away.
@@ -61,9 +61,9 @@ Active Mode/Passive Mode/Decoys:
  - Active Mode detection range decreases by 5% for each functional decoy on the
  target. This has diminishing returns (i.e. it is compounded). 20 decoys does
  not reduce the detection range by 100%. 20 decoys reduces the range by
-
- 100*(1 - (1/1.05)^20) == 62.3%. If the target could be detected at 10 km
- without decoys, with 20 decoys it can only be detected at 3.77 km.
+                         100*(1 - (1/1.05)^20) == 62.3%
+ If the target could be detected at 10 km without decoys, with 20 decoys it can
+ only be detected at 3.77 km.
  - Radars can "scan" targets to find the locations of terminals. I didn't look
  into this at all. However, decoys on the target makes scanning harder.
  - Aside from Active Mode detection and "scans", decoys have no effect on
@@ -113,42 +113,52 @@ Gravity Mode:
  less than 414 tonnes are not affected at all by grav detection.
  - Because of the 200 km detection limit, increasing the mass of a ship above
  14.2 kilotonnes no longer increases the detection range.
-Range:	Mass Limit:
-(km)	(tonnes)
-  1	  414
-  2	  657
-  3	  861
-  4	 1040
-  5	 1210
- 10	 1920
- 20	 3050
- 50	 5620
-100	 8920
-150	11700
-200	14200
+      		    Range: Mass Limit:
+		    (km)   (tonnes)
+		      1	     414
+		      2	     657
+		      3	     861
+		      4	    1040
+		      5	    1210
+		     10	    1920
+		     20	    3050
+		     50	    5620
+		    100	    8920
+		    150	   11700
+		    200	   14200
 
 Testing:
  - Assuming that the option to display friendly signals is enabled for a radar,
  there is no difference in the detection process between hostile and friendly
  signals.
  - Since passive radars do not make a ship more vulnerable to detection, it is
- safer for secret locations to have radars. Any radar discipline issues will be
- detected by the radar. 
-
+ safer for secret locations to have radars, or to have deticated listening
+ stations nearby. Any radar discipline issues will be detected by these radars.
 
 Hiding/Minimizing Detection Range:
  - Space is big. Really big. You just won't believe how vastly, hugely,
  mind-bogglingly big it is. I mean, you may think a 200 km detection radius is a
- long way, but that's just peanuts to space. 
+ long way, but that's just peanuts to space.
  - Since radars need line of sight, being detected inside an asteroid or under
  the surface of a planet is impossible unless the detector is within 1 km.
  - The overall range in which a ship can be detected is the maximum of the
  various modes. Thus, switching from reactors to solar won't help if the ship
  weighs 15 kilotonnes, etc.
+ - Even the stealthiest ships can usually afford to have at least one small
+ reactor functional without increasing its overall detection range, thanks to
+ its mass.
+ - Gravity generators make a very small contribution to gravimetric detection,
+ especially if they are run at low G. Also, platforms large enough to benefit
+ from artificial gravity probably has maxed out gravimetric detection range
+ anyway.
  - Usually, it makes sense to power active radars with reactors. Reactors
  increase detection range, but active radars increase it faster. However, it is
  possible for reactor heat to be more significant than active radars if there is
  something else that is using a ton of reactor power.
+ - Since there are no real drawbacks, it comes recommended for all ships that
+ may fly alone have passive radar. This will help alert you to powerful detector
+ ships. Passive radar needs line of sight, so make sure radars on board can see
+ in all directions.
  
 Conclusions:
 The existence of the mod raises the skill ceiling in ship design. In addition to
@@ -168,8 +178,8 @@ Future Work:
  to respond well to machine optimization. If I were solving this problem, I
  would assign each resource a value and compute much the value of a ship must
  increase to decrease its detection range.
- - This would likely work well as an in-game mod, but I don't know C# and don't
- have access to a windoge computer anyway atm.
+ - This script would likely work well as an in-game mod, but I don't know C# and
+ don't have access to a windoge computer anyway atm.
  - Verification: Since I don't have access to SE, I have no way of testing that
  the predictions are correct. 
  
