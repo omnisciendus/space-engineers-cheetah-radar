@@ -1,50 +1,53 @@
 Cheetah's Radar Mod takes a lot of factors into consideration to determine if a radar detects a target. Read the mod description to get a basic idea of the terminology. I'm not a c# developer, so it is possible I have made some mistakes reading the source code. However, here are some useful things I discovered:
 
+tl;dr:
+The radar mod makes it practical to find enemy ships (and for them to find you). However, careful design and use of radars can vastly improve the odds of staying hidden and/or finding enemies. Use radar.py to see how this works. You specify the hardware on a DetectorShip, and an array of target ships. The calculator figures out how close you have to get to them to see them, and how close they have to get to you. Caveats are that it does not account line of sight or asteroid gravity masking, and that depending on a couple of details in the source code I don't understand, it may be much easier to hide stations than I am predicting.
+
 Range Limit:
-Under no circumstances will a radar detect something more than 200 km away. The vanilla Earth-like planet has a radius of about 200 km, so the scannable volume around a ship is about the same size as the planet.
+ - Under no circumstances will a radar detect something more than 200 km away. The vanilla Earth-like planet has a radius of about 200 km, so the scannable volume around a ship is about the same size as the planet.
 
 Proximity/Guaranteed detection range/"turret mode":
-Functional radars will always detect objects within 1000 meters, regardless of line of sight.
+ - Functional radars will always detect objects within 1000 meters, regardless of line of sight.
 
 Radar interaction:
-Each radar on a grid independently scans for targets. Their only interaction is that their active scanning range stacks for all radars. Thus, two active radars can 'see' twice as far. This stacking only applies to the active radar detection 'mode'. 
+ - Each radar on a grid independently scans for targets. Their only interaction is that their active scanning range stacks for all radars. Thus, two active radars can 'see' twice as far. This stacking only applies to the active radar detection 'mode'. 
 
 Raycasting/line of sight:
-Aside from the 1000 meter proximity detection just mentioned, a radar must have a direct line of sight to the target.
-The grid that the radar is built on CAN block the view of a radar. In other words, interior radars are mostly useless.
-I didn't look to carefully at the raycasting algorithm, so I don't know how sophisticated it is when deciding if the target is in view. Much of the code is concerned with the bounding volume of ships; i.e. the smallest sphere that contains the entire ship. I don't know if the raycasting has to end on an actual block, or if any point on the bounding volume is detectable.
+ - Aside from the 1000 meter proximity detection just mentioned, a radar must have a direct line of sight to the target.
+ - The grid that the radar is built on CAN block the view of a radar. In other words, interior radars are mostly useless.
+ - I didn't look to carefully at the raycasting algorithm, so I don't know how sophisticated it is when deciding if the target is in view. Much of the code is concerned with the bounding volume of ships; i.e. the smallest sphere that contains the entire ship. I don't know if the raycasting has to end on an actual block, or if any point on the bounding volume is detectable.
 
 Testing:
-Assuming that the option to display friendly signals is enabled for a radar, there is no difference in the detection process between hostile and friendly signals.
-Since passive radars do not make a ship more vulnerable to detection, it is safer for secret locations to have radars. Any radar discipline issues will be detected by the radar. 
+ - Assuming that the option to display friendly signals is enabled for a radar, there is no difference in the detection process between hostile and friendly signals.
+ - Since passive radars do not make a ship more vulnerable to detection, it is safer for secret locations to have radars. Any radar discipline issues will be detected by the radar. 
 
 Active Mode/Passive Mode/Decoys:
-Radars do not switch between Active Mode and Passive Mode. They switch between "Active Mode ON" and "Active Mode OFF". Passive Mode is always on for any functional radar. Thus, if a ship has a dedicated active radar, it is not necessary to include a second radar in Passive Mode. 
-Radars with Active Mode OFF do not in any way make the ship more vulnerable to detection (other than increasing its mass/size like any other block).
-Active Mode detection range increases proportionally as the amount of power dedicated to Active Mode radars increases.
-Active Mode detection range increases proportionally to the size of the target's bounding volume. Thus, if a radar can spot a target at 10 km, it can spot a target twice as large at 20 km.
-Active Mode detection range decreases by 5% for each functional decoy on the target. This has diminishing returns (i.e. it is compounded). 20 decoys does not reduce the detection range by 100%. 20 decoys reduces the range by 100*(1 - (1/1.05)^20) == 62.3%. If the target could be detected at 10 km without decoys, with 20 decoys it can only be detected at 3.77 km.
-Radars can "scan" targets to find the locations of terminals. I didn't look into this at all. However, decoys on the target makes scanning harder.
-Aside from Active Mode detection and "scans", decoys have no effect on radars.
-Passive mode will also detect beacons and antennas.
+ - Radars do not switch between Active Mode and Passive Mode. They switch between "Active Mode ON" and "Active Mode OFF". Passive Mode is always on for any functional radar. Thus, if a ship has a dedicated active radar, it is not necessary to include a second radar in Passive Mode. 
+ - Radars with Active Mode OFF do not in any way make the ship more vulnerable to detection (other than increasing its mass/size like any other block).
+ - Active Mode detection range increases proportionally as the amount of power dedicated to Active Mode radars increases.
+ - Active Mode detection range increases proportionally to the size of the target's bounding volume. Thus, if a radar can spot a target at 10 km, it can spot a target twice as large at 20 km.
+ - Active Mode detection range decreases by 5% for each functional decoy on the target. This has diminishing returns (i.e. it is compounded). 20 decoys does not reduce the detection range by 100%. 20 decoys reduces the range by 100*(1 - (1/1.05)^20) == 62.3%. If the target could be detected at 10 km without decoys, with 20 decoys it can only be detected at 3.77 km.
+ - Radars can "scan" targets to find the locations of terminals. I didn't look into this at all. However, decoys on the target makes scanning harder.
+ - Aside from Active Mode detection and "scans", decoys have no effect on radars.
+ - Passive mode will also detect beacons and antennas.
 
 Reactors and Heat Mode:
-Detection range increases proportionally to the power generated by reactors on the target. In particular, a maxed out small reactor increases the range by 3 km and a maxed out large reactor increases the range by 60 km.
-There is no way to avoid being detected like this short of hiding behind something (remember radars need line of sight!).
-Because of the maximum range limitation, once a ship has 3 1/3 large reactors maxed out any additional reactors suffer no penalty.
-Two ships each carrying a single large reactor parked next to each other have a detection range of 60 km, while a single ship with both those reactors has a detection range of 120 km. I don't know exactly how the docking behavior works, but I'm pretty sure all connected grids pool their reactor output. Thus, attaching little "power ships" to a base is not a viable strategy for reducing detection range.
+ - Detection range increases proportionally to the power generated by reactors on the target. In particular, a maxed out small reactor increases the range by 3 km and a maxed out large reactor increases the range by 60 km.
+ - There is no way to avoid being detected like this short of hiding behind something (remember radars need line of sight!).
+ - Because of the maximum range limitation, once a ship has 3 1/3 large reactors maxed out any additional reactors suffer no penalty.
+ - Two ships each carrying a single large reactor parked next to each other have a detection range of 60 km, while a single ship with both those reactors has a detection range of 120 km. I don't know exactly how the docking behavior works, but I'm pretty sure all connected grids pool their reactor output. Thus, attaching little "power ships" to a base is not a viable strategy for reducing detection range.
 
 Gravity Mode:
-Gravity mode is by far this most interesting mode from a strategic perspective, imo.
-It is not possible to detect a grid inside a natural gravity well using gravity mode.
-It is not possible to detect static grids using gravity mode. I'm not certain what "static" means in game terms, however. It is unclear to me whether all stations are static, or if they need to be attached to a voxel.
-It is not possible to detect a grid using gravity mode if the grid is too close to asteroids. In particular, gravity mode will fail if the ship's bounding volue entirely lies within a sphere three times the size of the asteroid's bounding volume, centered on the asteroid.
-Artificial gravity generators affect a target's detection range. Every additional 1 G of artificial gravity increases detection range by .5 km.
-Every artificial gravity generator behaves independently. Thus, if one generator is creating 1 G "down" and another is creating 1 G "up" over the exact same area, the detection range is increased by 1 km, despite the generators having no effect. It does not matter what direction a gravity generator points.
-The mass of a ship increases its detection range. The total gravity detection range is the sum of the contribution from the mass and artificial gravity.
+ - Gravity mode is by far this most interesting mode from a strategic perspective, imo.
+ - It is not possible to detect a grid inside a natural gravity well using gravity mode.
+ - It is not possible to detect static grids using gravity mode. I'm not certain what "static" means in game terms, however. It is unclear to me whether all stations are static, or if they need to be attached to a voxel.
+ - It is not possible to detect a grid using gravity mode if the grid is too close to asteroids. In particular, gravity mode will fail if the ship's bounding volue entirely lies within a sphere three times the size of the asteroid's bounding volume, centered on the asteroid.
+ - Artificial gravity generators affect a target's detection range. Every additional 1 G of artificial gravity increases detection range by .5 km.
+ - Every artificial gravity generator behaves independently. Thus, if one generator is creating 1 G "down" and another is creating 1 G "up" over the exact same area, the detection range is increased by 1 km, despite the generators having no effect. It does not matter what direction a gravity generator points.
+ - The mass of a ship increases its detection range. The total gravity detection range is the sum of the contribution from the mass and artificial gravity.
 The detection range does NOT increases proportionally with mass. It increases with mass^(3/2). Thus, heavy ships are disproportionally more susceptible to being detected in this manner.
-Because all ships are guaranteed to be detected within 1 km, ships weighing less than 414 tonnes are not affected at all by grav detection.
-Because of the 200 km detection limit, increasing the mass of a ship above 14.2 kilotonnes no longer increases the detection range.
+ - Because all ships are guaranteed to be detected within 1 km, ships weighing less than 414 tonnes are not affected at all by grav detection.
+ - Because of the 200 km detection limit, increasing the mass of a ship above 14.2 kilotonnes no longer increases the detection range.
 Range:	Mass Limit:
 (km)	(tonnes)
   1	  414
@@ -59,15 +62,24 @@ Range:	Mass Limit:
 150	11700
 200	14200
 
-Hiding/Minimizing Detection Range
-Space is big. Really big. You just won't believe how vastly, hugely, mind-bogglingly big it is. I mean, you may think a 200 km detection radius is a long way, but that's just peanuts to space. 
-Since radars need line of sight, being detected inside an asteroid or under the surface of a planet is impossible unless the detector is within 1 km.
-The overall range in which a ship can be detected is the maximum of the various modes. Thus, switching from reactors to solar won't help if the ship weighs 15 kilotonnes, etc.
-There is never a reason not to power active radars with reactors. The Passive 
+Hiding/Minimizing Detection Range:
+ - Space is big. Really big. You just won't believe how vastly, hugely, mind-bogglingly big it is. I mean, you may think a 200 km detection radius is a long way, but that's just peanuts to space. 
+ - Since radars need line of sight, being detected inside an asteroid or under the surface of a planet is impossible unless the detector is within 1 km.
+ - The overall range in which a ship can be detected is the maximum of the various modes. Thus, switching from reactors to solar won't help if the ship weighs 15 kilotonnes, etc.
+ - Usually, it makes sense to power active radars with reactors. Reactors increase detection range, but active radars increase it faster. However, it is possible for reactor heat to be more significant than active radars if there is something else that is using a ton of reactor power.
 
+Conclusions:
+The existence of the mod raises the skill ceiling in ship design. In addition to the somewhat academic exercise of keeping different detection types balanced, finding a compromise between ship cost and stealthiness will be key. It remains practical to indefinitely hide secure bases, but keeping tabs on the available resources will be far easier.
+
+Future Work:
+ - Someone who is more familiar with C# and SE modding should figure out what <Grid.hasphysics> and <Grid.isstatic> mean. I've largely ignored hasphysics, assuming all relevant grids will have physics, and I suspect stations are static.
+ - Detection range is a minimization problem. For a given ship capability, there must exist a minimum detection range. The problem is likely simple enough to respond well to machine optimization. If I were solving this problem, I would assign each resource a value and compute much the value of a ship must increase to decrease its detection range.
+
+Appendix:
 Radar pseudocode:
+
 Keywords:
-within: "the distance between DET and TAR is less than"
+"within" = "the distance between DET and TAR is less than"
 
 Abbreviations:
 DET: detector craft

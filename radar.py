@@ -9,6 +9,7 @@ except ImportError:
 
 
 TERMINAL_TABWIDTH = 8 # number of spaces equal to a full tab
+DETECTOR_RADARS = 1 # number of active radars on a detector ship
 
 # G = 9.81 # Standard Gravity (m/s^2)
 PR = 120000 # PlanetRadius (m)
@@ -96,8 +97,8 @@ class Ship(Grid):
         return s
     def DetectorShip():
         s = Ship()
-        s.blocks['radar-active'] = 1
-        s.blocks['large-reactor'] = 2
+        s.blocks['radar-active'] = DETECTOR_RADARS
+        s.blocks['large-reactor'] = s.blocks['radar-active']/6
         s.M = 2000E3 # kg
         s.boundingradius = 2.5*18 # m
         return s
@@ -178,7 +179,7 @@ def main():
         row += [str(int(tar.M/1000)), str(int(tar.boundingradius*2))]
 
         
-        tar_blocks = [str(v) + ' ' + k.replace('-',' ')
+        tar_blocks = [str(round(v,2)) + ' ' + k.replace('-',' ')
                       for k,v in tar.blocks.items() if v > 0]
 
         tar_blocks = ', '.join(tar_blocks)
@@ -192,7 +193,7 @@ def main():
     print('Radar Detection Range')
     print('Max Range to Target / Max Hostile Detection Range')
     print('Active Radars: ' + str(det.blocks['radar-active']))
-    print('Large Reactors Running: ' + str(det.blocks['large-reactor']))
+    print('Large Reactors Running: ' + str(round(det.blocks['large-reactor'],4)))
     if ptimport:
         print(pt)
     else:
