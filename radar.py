@@ -190,8 +190,7 @@ def main():
     if ptimport:
         pt = PrettyTable(firstrow)
     elif pdimport:
-        print('HEY')
-        pass
+        pt = []
     else:
         for i in range(1,7):
             firstrow[i] = ((13 - len(firstrow[i]))//2)*' ' + firstrow[i]
@@ -241,6 +240,8 @@ def main():
           + str(round(det.blocks['large-reactor'],4)))
     if ptimport:
         print(pt)
+    elif pdimport:
+        print(DataFrame(pt, columns=firstrow))
     else:
         for row in pt:
             if not row:
