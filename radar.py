@@ -7,11 +7,18 @@
 import math
 
 ptimport = False
+pdimport = False
 try:
     from prettytable import PrettyTable
     ptimport = True
 except ImportError:
-    pass
+    try:
+        from pandas import DataFrame
+        pdimport = True
+    except ImportError:
+        pass
+
+    
 
 TERMINAL_TABWIDTH = 8 # number of spaces equal to a full tab
 DETECTOR_RADARS = 1 # number of active radars on a detector ship
@@ -182,6 +189,9 @@ def main():
                 'Net Range', 'Mass (T)', 'Length (m)', 'Blocks']
     if ptimport:
         pt = PrettyTable(firstrow)
+    elif pdimport:
+        print('HEY')
+        pass
     else:
         for i in range(1,7):
             firstrow[i] = ((13 - len(firstrow[i]))//2)*' ' + firstrow[i]
